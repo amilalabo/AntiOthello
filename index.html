@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1714">
+<title>AntiOthello</title>
+<style>:root{color-scheme:dark;--bg:#0c1714;--panel:#15231e;--border:#35483f;--text:#f1f5ed;--muted:#9faf9f;--accent:#e7c77b;--cell:#287d56}
+*{box-sizing:border-box}html{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(circle at 20% -20%,#244438,transparent 48%),var(--bg)}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.page{max-width:1140px;margin:auto;padding:24px clamp(12px,3vw,32px) 36px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:21px}.top h1{font-size:clamp(27px,3.8vw,39px);line-height:1.25;margin:0;font-weight:850}.intro{margin:8px 0 0;color:var(--muted);font-size:13px}.top-actions{display:flex;gap:9px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#24352d;border:1px solid #4a6052;color:var(--text);border-radius:11px;padding:10px 14px;font-size:13px;font-weight:700;white-space:nowrap}.btn:hover:not(:disabled){background:#344d3d;border-color:#78927d}.btn-primary{background:var(--accent);color:#2b281d;border-color:var(--accent)}.btn-primary:hover:not(:disabled){background:#f6dc98}
+.layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(300px,.76fr);align-items:start;gap:22px}.game-panel,.side-panel{min-width:0}.scores{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch;margin-bottom:12px}.score{border:1px solid var(--border);background:#152720;border-radius:14px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0}.score.active{border-color:var(--accent);box-shadow:0 0 0 1px #e7c77b33}.score-label{font-size:11px;color:var(--muted);font-weight:750;margin-bottom:5px}.score-name{font-size:15px;font-weight:800;white-space:nowrap}.score-number{font-size:31px;font-weight:850;font-variant-numeric:tabular-nums}.disc-mini{width:16px;height:16px;border-radius:50%;display:inline-block;vertical-align:-3px;margin-right:4px;border:1px solid #ffffff55}.disc-mini.white{background:linear-gradient(140deg,#fff,#bdcfc3)}.disc-mini.black{background:linear-gradient(140deg,#505951,#080e0b)}.versus{align-self:center;font-weight:800;color:#7e998b;font-size:11px}
+.board-card{border:1px solid var(--border);background:#182b23;border-radius:17px;padding:clamp(9px,2vw,18px);box-shadow:0 14px 38px #00000025}.board-wrap{max-width:620px;margin:0 auto;position:relative;padding-left:20px;padding-top:20px}.top-coords{position:absolute;left:20px;right:0;top:0;display:grid;grid-template-columns:repeat(8,1fr);height:20px}.left-coords{position:absolute;left:0;top:20px;bottom:0;width:20px;display:grid;grid-template-rows:repeat(8,1fr)}.top-coords span,.left-coords span{display:flex;align-items:center;justify-content:center;color:#9db6a4;font-size:clamp(9px,1.1vw,12px);font-weight:800}.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:5px solid #123f2e;border-radius:7px;overflow:hidden;background:#145c3d;user-select:none;touch-action:manipulation}.cell{padding:0;display:flex;align-items:center;justify-content:center;position:relative;background:var(--cell);border:1px solid #1c6347;min-width:0;min-height:0;appearance:none}.cell:nth-child(16n+1),.cell:nth-child(16n+3),.cell:nth-child(16n+5),.cell:nth-child(16n+7),.cell:nth-child(16n+10),.cell:nth-child(16n+12),.cell:nth-child(16n+14),.cell:nth-child(16n+16){background:#287852}.cell.playable:hover{background:#419c6c}.cell:not(.playable){cursor:default}.cell.last:before{content:"";position:absolute;inset:6%;border:2px solid var(--accent);border-radius:3px;pointer-events:none;z-index:2}.stone{border-radius:50%;width:79%;height:79%;display:block;z-index:1;box-shadow:0 3px 5px #0b312255,inset 0 1px 2px #ffffff22}.stone.white{background:radial-gradient(circle at 34% 26%,#fff 8%,#e0e8dd 54%,#a8b8a8 100%);border:1px solid #e1ebe0}.stone.black{background:radial-gradient(circle at 35% 28%,#526054,#273329 39%,#070e09);border:1px solid #151f17}.hint-dot{width:22%;height:22%;border-radius:50%;background:#e3e8be85}.cell.playable:hover .hint-dot{background:#ffdc89}.board-caption{display:flex;justify-content:space-between;gap:10px;color:#9ab6a5;font-size:11px;margin-top:11px;flex-wrap:wrap}
+.state-row{background:#14261f;border:1px solid var(--border);margin-top:12px;padding:12px 14px;border-radius:12px;display:flex;align-items:center;gap:11px;min-height:52px}.state-indicator{width:9px;height:9px;background:var(--accent);border-radius:50%;flex-shrink:0}.state-indicator.done{background:#76ceaa}.status-text{font-size:13px;line-height:1.65;font-weight:730}.status-detail{display:block;font-size:11px;color:var(--muted);font-weight:500}.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;margin-bottom:13px}.panel h2{font-size:16px;margin:0 0 14px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel h2 small{color:var(--muted);font-size:11px;font-weight:600}.settings{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.settings label{font-size:12px;font-weight:700;color:#d8e3d7}.select{background:#243b2e;color:var(--text);border:1px solid #506455;border-radius:10px;padding:9px 12px;font-size:12px;max-width:100%}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:#faf2d9;color:#20352a;padding:10px 16px;border-radius:10px;box-shadow:0 8px 25px #0005;font-size:12px;font-weight:750;opacity:0;transition:opacity .2s,transform .2s;z-index:20;pointer-events:none;max-width:85vw;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}@media(max-width:850px){.layout{grid-template-columns:1fr}.page{max-width:740px}}@media(max-width:520px){.page{padding:18px 10px 26px}.top{margin-bottom:14px;gap:12px}.top-actions{width:100%}.top-actions .btn{flex:1}.layout{gap:12px}.scores{gap:5px;margin-bottom:9px}.score{border-radius:12px;padding:10px 9px;gap:5px}.score-name{font-size:12px}.score-number{font-size:25px}.score-label{font-size:10px}.versus{font-size:9px}.board-card{border-radius:12px;padding:8px}.board-wrap{padding-left:17px;padding-top:17px}.left-coords{top:17px;width:17px}.top-coords{left:17px;height:17px}.board{border-width:3px}.panel{padding:14px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div><h1>AntiOthello</h1><p class="intro">あなたは <strong>白・先攻</strong> ／ AIは <strong>黒・後攻</strong>。</p></div>
+    <div class="top-actions"><button class="btn btn-primary" id="resetBtn" type="button">↻ 新しい対局</button></div>
+  </header>
+  <main class="layout">
+    <section class="game-panel" aria-label="対局盤面">
+      <div class="scores">
+        <div class="score" id="whiteScoreCard"><div><div class="score-label">先攻・あなた</div><div class="score-name"><span class="disc-mini white"></span>白</div></div><div class="score-number" id="whiteCount">2</div></div>
+        <div class="versus">VS</div>
+        <div class="score" id="blackScoreCard"><div><div class="score-label">後攻・AI</div><div class="score-name"><span class="disc-mini black"></span>黒</div></div><div class="score-number" id="blackCount">2</div></div>
+      </div>
+      <div class="board-card">
+        <div class="board-wrap"><div class="top-coords" id="cols" aria-hidden="true"></div><div class="left-coords" id="rows" aria-hidden="true"></div><div class="board" id="board" aria-label="オセロ盤 8行8列"></div></div>
+        <div class="board-caption"><span>● 黄色い枠は直前の着手</span><span>○ 小さな点は白の合法手</span></div>
+      </div>
+      <div class="state-row"><span class="state-indicator" id="stateIndicator"></span><div><span class="status-text" id="statusText">あなたの番です</span><span class="status-detail" id="statusDetail">白石を置く場所を選択してください</span></div></div>
+    </section>
+    <aside class="side-panel">
+      <section class="panel">
+        <h2>AIの思考設定 <small id="aiInfo">探索待機中</small></h2>
+        <div class="settings"><label for="aiLevel">黒AIの思考時間</label><select class="select" id="aiLevel"><option value="450">短め · 約0.5秒</option><option value="1600" selected>本気 · 約1.6秒</option><option value="4200">徹底 · 約4秒</option></select></div>
+      </section>
+    </aside>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script id="worker-code" type="text/plain">'use strict';
+const WHITE=1,BLACK=-1,DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const RAYS=Array.from({length:64},(_,idx)=>DIRS.map(([dr,dc])=>{let row=idx>>3,col=idx&7,a=[];row+=dr;col+=dc;while(row>=0&&row<8&&col>=0&&col<8){a.push(row*8+col);row+=dr;col+=dc;}return a;}));
+const CORNERS=[0,7,56,63];
+function legalMoves(board,side){const result=[];for(let i=0;i<64;i++){if(board[i]!==0)continue;let flips=null;for(let j=0;j<8;j++){const ray=RAYS[i][j];let n=0;while(n<ray.length&&board[ray[n]]===-side)n++;if(n>0&&n<ray.length&&board[ray[n]]===side){if(!flips)flips=[];for(let k=0;k<n;k++)flips.push(ray[k]);}}if(flips)result.push({i,flips});}return result;}
+function applyMove(board,move,side){const copy=board.slice();copy[move.i]=side;for(const i of move.flips)copy[i]=side;return copy;}
+function terminal(board,side){let diff=0;for(let i=0;i<64;i++)diff+=board[i];return (-side*diff)*10000;}
+function evaluate(board,side,myMoves,empties){let diff=0,edge=0,frontier=0;for(let i=0;i<64;i++){const piece=board[i];if(piece===0)continue;diff+=piece;if((i>>3)===0||(i>>3)===7||(i&7)===0||(i&7)===7)edge+=piece;for(const [dr,dc] of DIRS){const r=(i>>3)+dr,c=(i&7)+dc;if(r>=0&&r<8&&c>=0&&c<8&&board[r*8+c]===0){frontier+=piece;break;}}}const ownDiscAdvantage=-side*diff;
+ let cornerDelta=0;for(const i of CORNERS)cornerDelta+=board[i];
+ let nearEmptyCorner=0;for(const k of [0,7,56,63])if(board[k]===0){const r=k>>3,c=k&7;for(const dr of [r===0?0:-1,r===0?1:0])for(const dc of [c===0?0:-1,c===0?1:0]){if(dr===0&&dc===0)continue;const idx=(r+dr)*8+(c+dc);nearEmptyCorner+=board[idx];}}
+ const theirs=legalMoves(board,-side).length;const moveDiff=myMoves.length-theirs;
+ const stage=(60-empties)/60;
+ // 石の少なさは目的だが、序盤は反転の多寡だけを評価すると弱くなるため機動力も考慮する。
+ return ownDiscAdvantage*(2+stage*stage*20)+moveDiff*(8+stage*3)-side*cornerDelta*(25+stage*12)+side*frontier*2-side*edge*1.5+side*nearEmptyCorner*6;
+}
+const TIMEOUT={};let deadline=0,nodes=0,tt=new Map();
+function order(moves,ttMove){for(const m of moves){m.rank=(m.i===ttMove?100000:0)-m.flips.length*6-(CORNERS.includes(m.i)?220:0);const row=m.i>>3,col=m.i&7;if(row===0||row===7||col===0||col===7)m.rank-=9;}moves.sort((a,b)=>b.rank-a.rank);return moves;}
+function negamax(board,side,depth,alpha,beta,empties,pass){nodes++;if((nodes&1023)===0&&performance.now()>deadline)throw TIMEOUT;
+ if(empties===0)return terminal(board,side);
+ const moves=legalMoves(board,side);
+ if(moves.length===0){if(pass||legalMoves(board,-side).length===0)return terminal(board,side);return -negamax(board,-side,depth,-beta,-alpha,empties,true);}
+ if(depth===0)return evaluate(board,side,moves,empties);
+ const key=depth>=3?board.join('')+side:null;let entry=key===null?null:tt.get(key);let ttMove=entry?entry.best:-1;
+ if(entry&&entry.depth>=depth){if(entry.flag==='EXACT')return entry.score;if(entry.flag==='LOW')alpha=Math.max(alpha,entry.score);else if(entry.flag==='HIGH')beta=Math.min(beta,entry.score);if(alpha>=beta)return entry.score;}
+ const baseAlpha=alpha;let best=-Infinity,bestIndex=-1;
+ order(moves,ttMove);
+ for(const move of moves){const score=-negamax(applyMove(board,move,side),-side,depth-1,-beta,-alpha,empties-1,false);if(score>best){best=score;bestIndex=move.i;}if(score>alpha)alpha=score;if(alpha>=beta)break;}
+ if(key!==null){if(tt.size>180000)tt.clear();tt.set(key,{depth,score:best,best:bestIndex,flag:best<=baseAlpha?'HIGH':best>=beta?'LOW':'EXACT'});}
+ return best;
+}
+function run(boardArray,timeBudget){const board=new Int8Array(boardArray),moves=legalMoves(board,BLACK);if(!moves.length){postMessage({type:'done',at:-1,depth:0,nodes:0});return;}
+ deadline=performance.now()+Math.max(100,Math.min(12000,timeBudget));nodes=0;tt=new Map();let best=moves[0].i,completed=0,bestScore=null;
+ // 思考時間の中で完全に探索できた深さの最善手だけを採用する。
+ const empties=board.reduce((s,x)=>s+(x===0),0);
+ for(let depth=1;depth<=Math.min(26,empties+2);depth++){
+  try{let rankBest=-Infinity,rankMove=best;const rootMoves=order(legalMoves(board,BLACK),best);let alpha=-Infinity;
+   for(const move of rootMoves){if(performance.now()>deadline)throw TIMEOUT;let score=-negamax(applyMove(board,move,BLACK),WHITE,depth-1,-Infinity,-alpha,empties-1,false);if(score>rankBest){rankBest=score;rankMove=move.i;}if(score>alpha)alpha=score;}
+   best=rankMove;bestScore=rankBest;completed=depth;postMessage({type:'progress',depth,nodes,best,score:bestScore});
+   if(Math.abs(bestScore)>=10000*64||depth>=empties+1)break;
+  }catch(error){if(error===TIMEOUT)break;throw error;}
+ }
+ postMessage({type:'done',at:best,depth:completed,nodes,score:bestScore});
+}
+onmessage=e=>{if(e.data.type!=='think')return;try{run(e.data.board,e.data.budget);}catch(err){postMessage({type:'error',message:String(err)});}};</script>
+<script>'use strict';
+(()=>{
+const WHITE=1,BLACK=-1,letters='ABCDEFGH',DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const $=id=>document.getElementById(id);
+const RAYS=Array.from({length:64},(_,idx)=>DIRS.map(([dr,dc])=>{let row=idx>>3,col=idx&7,a=[];row+=dr;col+=dc;while(row>=0&&row<8&&col>=0&&col<8){a.push(row*8+col);row+=dr;col+=dc;}return a;}));
+function initial(){const board=Array(64).fill(0);board[27]=WHITE;board[36]=WHITE;board[28]=BLACK;board[35]=BLACK;return {board,turn:WHITE,over:false,last:null};}
+const coord=i=>letters[i&7]+(1+(i>>3));
+function legalMoves(board,side){const result=[];for(let i=0;i<64;i++){if(board[i]!==0)continue;let flips=null;for(let j=0;j<8;j++){const ray=RAYS[i][j];let n=0;while(n<ray.length&&board[ray[n]]===-side)n++;if(n>0&&n<ray.length&&board[ray[n]]===side){if(!flips)flips=[];for(let k=0;k<n;k++)flips.push(ray[k]);}}if(flips)result.push({i,flips});}return result;}
+function tally(board){let white=0,black=0;for(const x of board){if(x===WHITE)white++;else if(x===BLACK)black++;}return {white,black};}
+let state=initial(),aiWorker=null,aiToken=0,aiBusy=false,aiStats='',toastTimer=null;
+const cells=[];
+for(const c of letters){const el=document.createElement('span');el.textContent=c;$('cols').appendChild(el);}
+for(let r=1;r<=8;r++){const el=document.createElement('span');el.textContent=r;$('rows').appendChild(el);}
+for(let i=0;i<64;i++){const el=document.createElement('button');el.type='button';el.className='cell';el.setAttribute('aria-label',coord(i));el.addEventListener('click',()=>playWhite(i));$('board').appendChild(el);cells.push(el);}
+function stopAI(){aiToken++;if(aiWorker){aiWorker.terminate();aiWorker=null;}aiBusy=false;}
+function toast(msg){clearTimeout(toastTimer);$('toast').textContent=msg;$('toast').classList.add('show');toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2300);}
+function appendMove(side,move){const board=state.board.slice();board[move.i]=side;for(const at of move.flips)board[at]=side;
+ state={board,turn:-side,over:false,last:move.i};
+ if(!legalMoves(board,-side).length){if(!legalMoves(board,side).length){state.over=true;state.turn=null;}else{state.turn=side;toast((side===WHITE?'黒AI':'白')+'は置ける場所がないためパス');}}
+ render();if(state.turn===BLACK&&!state.over)startAI();
+}
+function playWhite(i){if(state.over||state.turn!==WHITE||aiBusy)return;const move=legalMoves(state.board,WHITE).find(m=>m.i===i);if(!move)return;
+ appendMove(WHITE,move);
+}
+function startAI(){if(state.over||state.turn!==BLACK||aiBusy)return;
+ aiBusy=true;const token=++aiToken;aiStats='読み始めています…';renderStatus();$('aiInfo').textContent='思考中…';
+ try{const blob=new Blob([$('worker-code').textContent],{type:'text/javascript'});const url=URL.createObjectURL(blob);const worker=new Worker(url);URL.revokeObjectURL(url);aiWorker=worker;
+ worker.onmessage=event=>{if(token!==aiToken||aiWorker!==worker)return;const data=event.data;
+  if(data.type==='progress'){aiStats='探索 '+data.depth+'手先 / '+data.nodes.toLocaleString('ja-JP')+'局面';$('aiInfo').textContent='深さ '+data.depth+' 手';renderStatus();}
+  else if(data.type==='done'){
+   const {at,depth,nodes}=data;stopAI();aiStats='直近：'+depth+'手先 / '+nodes.toLocaleString('ja-JP')+'局面';$('aiInfo').textContent='探索深度 '+depth+' 手';
+   if(state.over||state.turn!==BLACK){render();return;}
+   const moves=legalMoves(state.board,BLACK),move=moves.find(m=>m.i===at)||moves[0];if(move)appendMove(BLACK,move);else render();
+  }else if(data.type==='error')handleWorkerError(data.message);
+ };
+ worker.onerror=event=>{event.preventDefault();if(token===aiToken)handleWorkerError('探索処理を再開しました');};
+ worker.postMessage({type:'think',board:state.board,budget:Number($('aiLevel').value)});
+ }catch(error){handleWorkerError(String(error));}
+}
+function handleWorkerError(message){stopAI();const moves=legalMoves(state.board,BLACK);if(!state.over&&state.turn===BLACK&&moves.length){const choice=moves.reduce((best,m)=>m.flips.length<best.flips.length?m:best,moves[0]);appendMove(BLACK,choice);toast('AI探索で問題が発生したため簡易手を選択しました');}else render();console.warn('AI:',message);}
+function renderBoard(){const allowed=state.turn===WHITE&&!state.over?legalMoves(state.board,WHITE):[],legalSet=new Set(allowed.map(m=>m.i));
+ for(let i=0;i<64;i++){const cell=cells[i],piece=state.board[i];cell.className='cell'+(i===state.last?' last':'')+(legalSet.has(i)?' playable':'');cell.disabled=!legalSet.has(i);cell.replaceChildren();if(piece!==0){const stone=document.createElement('span');stone.className='stone '+(piece===WHITE?'white':'black');cell.appendChild(stone);}else if(legalSet.has(i)){const dot=document.createElement('span');dot.className='hint-dot';cell.appendChild(dot);}cell.setAttribute('aria-label',coord(i)+' '+(piece===WHITE?'白':piece===BLACK?'黒':legalSet.has(i)?'置けます':'空き'));}
+ const counts=tally(state.board);$('whiteCount').textContent=counts.white;$('blackCount').textContent=counts.black;
+ $('whiteScoreCard').classList.toggle('active',!state.over&&state.turn===WHITE);$('blackScoreCard').classList.toggle('active',!state.over&&state.turn===BLACK);
+}
+function renderStatus(){const indicator=$('stateIndicator');let title,detail;indicator.className='state-indicator';
+ if(state.over){indicator.classList.add('done');const c=tally(state.board);title=c.white>c.black?'あなたの勝ち！':c.black>c.white?'AIの勝ち！':'引き分け';detail='最終：白 '+c.white+'枚 / 黒 '+c.black+'枚';}
+ else if(aiBusy){title='AIが考えています…';detail=aiStats||'盤面を解析中';}
+ else if(state.turn===WHITE){title='あなたの番です（白・先攻）';detail='白石を置く場所を選択してください';}
+ else{title='黒AIの番です';detail='黒AIの先読みを開始します';}
+ $('statusText').textContent=title;$('statusDetail').textContent=detail;
+}
+function render(){renderBoard();renderStatus();}
+function reset(){stopAI();state=initial();aiStats='';$('aiInfo').textContent='探索待機中';render();}
+$('resetBtn').addEventListener('click',reset);
+render();
+})();</script>
+</body>
+</html>
